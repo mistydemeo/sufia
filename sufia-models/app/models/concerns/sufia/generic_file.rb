@@ -40,21 +40,21 @@ module Sufia
         yield
       rescue RSolr::Error::Http => error
         save_tries += 1
-        logger.warn "Retry Solr caught RSOLR error on #{self.pid}: #{error.inspect}"
+        ActiveFedora::Base.logger.warn "Retry Solr caught RSOLR error on #{self.pid}: #{error.inspect}"
         # fail for good if the tries is greater than 3
         raise if save_tries >=3
         sleep 0.01
         retry
       rescue  ActiveResource::ResourceConflict => error
         conflict_tries += 1
-        logger.warn "Retry caught Active Resource Conflict #{self.pid}: #{error.inspect}"
+        ActiveFedora::Base.logger.warn "Retry caught Active Resource Conflict #{self.pid}: #{error.inspect}"
         raise if conflict_tries >=10
         sleep 0.01
         retry
       rescue => error
         if error.to_s.downcase.include? "conflict"
           conflict_tries += 1
-          logger.warn "Retry caught Active Resource Conflict #{self.pid}: #{error.inspect}"
+          ActiveFedora::Base.logger.warn "Retry caught Active Resource Conflict #{self.pid}: #{error.inspect}"
           raise if conflict_tries >=10
           sleep 0.01
           retry

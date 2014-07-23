@@ -77,7 +77,7 @@ module Sufia
               return false
             end
           else
-            logger.warn "***AUDIT*** problem with audit log!  Latest Audit is not nil, but updated_at is not set #{latest_audit}"  unless latest_audit.nil?
+            ActiveFedora::Base.logger.warn "***AUDIT*** problem with audit log!  Latest Audit is not nil, but updated_at is not set #{latest_audit}"  unless latest_audit.nil?
           end
           true
         end
@@ -99,7 +99,7 @@ module Sufia
             passing = 1
             ChecksumAuditLog.prune_history(version)
           else
-            logger.warn "***AUDIT*** Audit failed for #{version.pid} #{version.versionID}"
+            ActiveFedora::Base.logger.warn "***AUDIT*** Audit failed for #{version.pid} #{version.versionID}"
             passing = 0
           end
           check = ChecksumAuditLog.create!(pass: passing, pid: version.pid,

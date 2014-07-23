@@ -36,9 +36,9 @@ module Sufia
           has_directories = true
           Dir[File.join(current_user.directory, filename, '**', '*')].each do |single|
             next if File.directory? single
-            logger.info("Ingesting file: #{single}")
+            ActiveFedora::Base.logger.info("Ingesting file: #{single}")
             files << single.sub(current_user.directory + '/', '')
-            logger.info("after removing the user directory #{current_user.directory} we have: #{files.last}")
+            ActiveFedora::Base.logger.info("after removing the user directory #{current_user.directory} we have: #{files.last}")
           end
         else
           files << filename

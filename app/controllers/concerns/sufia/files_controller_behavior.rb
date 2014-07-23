@@ -84,7 +84,7 @@ module Sufia
         process_file(file)
       end
     rescue => error
-      logger.error "GenericFilesController::create rescued #{error.class}\n\t#{error.to_s}\n #{error.backtrace.join("\n")}\n\n"
+      ActiveFedora::Base.logger.error "GenericFilesController::create rescued #{error.class}\n\t#{error.to_s}\n #{error.backtrace.join("\n")}\n\n"
       json_error "Error occurred while creating generic file."
     ensure
       # remove the tempfile (only if it is a temp file)
@@ -128,7 +128,7 @@ module Sufia
       end
     rescue => error
       flash[:error] = error.message
-      logger.error "GenericFilesController::update rescued #{error.class}\n\t#{error.message}\n #{error.backtrace.join("\n")}\n\n"
+      ActiveFedora::Base.logger.error "GenericFilesController::update rescued #{error.class}\n\t#{error.message}\n #{error.backtrace.join("\n")}\n\n"
       render action: 'edit'
     end
 
