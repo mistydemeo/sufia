@@ -20,7 +20,7 @@ module Sufia
         extracted_text = JSON.parse(resp.body)[''].rstrip
         full_text.content = extracted_text if extracted_text.present?
       rescue => e
-        logger.error("Error extracting content from #{self.pid}: #{e.inspect}")
+        ActiveFedora::Base.logger.error("Error extracting content from #{self.pid}: #{e.inspect}")
       end
     end
   end
