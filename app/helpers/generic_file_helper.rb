@@ -20,22 +20,18 @@ module GenericFileHelper
     render_edit_field_partial_with_action('batch_edit', key, locals)
   end
 
-  def render_download_icon title = nil
-    if title.nil?
-      link_to download_image_tag, sufia.download_path(@generic_file.id), { target: "_blank", title: "Download the document", id: "file_download", data: { label: @generic_file.id } }
-    else
-      link_to (download_image_tag(title) + title), sufia.download_path(@generic_file), { target: "_blank", title: title, id: "file_download", data: { label: @generic_file.id } }
-    end
+  def render_download_icon(title=nil)
+    link_target = download_image_tag(title) + title
+    title ||= "Download the document"
+    link_to link_target, sufia.download_path(@generic_file), { target: "_blank", title: title, id: "file_download", data: { label: @generic_file.to_param } }
   end
 
-  def render_download_link text = nil
-    link_to (text || "Download"), sufia.download_path(@generic_file.noid), { id: "file_download", target: "_new", data: { label: @generic_file.id } }
+  def render_download_link(text='Download')
+    link_to text, sufia.download_path(@generic_file), { id: "file_download", target: "_new", data: { label: @generic_file.to_param } }
   end
 
-  def render_collection_list gf
-    unless gf.collections.empty?
-      ("Is part of: " + gf.collections.map { |c| link_to(c.title, collections.collection_path(c.id)) }.join(", ")).html_safe
-    end
+  def render_collection_list(gf)
+    "Part of: #{linked_collection_titles(gf).join(", ")}".html_safe if gf.collections.present?
   end
 
   private
@@ -73,11 +69,17 @@ module GenericFileHelper
     end
   end
 
-  def download_image_tag title = nil
-    if title.nil?
-      image_tag "default.png", { alt: "No preview available", class: "img-responsive" }
-    else
+  def download_image_tag(title=nil)
+    if title
       image_tag sufia.download_path(@generic_file, datastream_id: 'thumbnail'), { class: "img-responsive", alt: "#{title} of #{@generic_file.title.first}" }
+    else
+      image_tag "default.png", { alt: "No preview available", class: "img-responsive" }
+    end
+  end
+
+  def linked_collection_titles(gf)
+    gf.collections.map do |c|
+      link_to(c.title, collections.collection_path(c))
     end
   end
 end
