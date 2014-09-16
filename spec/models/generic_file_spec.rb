@@ -129,9 +129,6 @@ describe GenericFile do
     it "should have rightsMetadata" do
       expect(subject.rightsMetadata).to be_instance_of ParanoidRightsDatastream
     end
-    it "should have properties datastream for depositor" do
-      expect(subject.properties).to be_instance_of PropertiesDatastream
-    end
     it "should have apply_depositor_metadata" do
       expect(subject.rightsMetadata.edit_access).to eq ['jcoyne']
       expect(subject.depositor).to eq 'jcoyne'

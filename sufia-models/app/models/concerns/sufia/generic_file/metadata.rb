@@ -4,16 +4,18 @@ module Sufia
       extend ActiveSupport::Concern
 
       included do
-        has_metadata "properties", type: PropertiesDatastream
         has_file_datastream "content", type: FileContentDatastream
         has_file_datastream "thumbnail"
-
-        has_attributes :relative_path, :import_url, datastream: :properties, multiple: false
         
         property :label, predicate: RDF::DC.title
 
         property :depositor, predicate: RDF::URI.new("http://id.loc.gov/vocabulary/relators/dpt") do |index|
           index.as :symbol, :stored_searchable
+        end
+        # This is where we put the relative path of the file if submitted as a folder
+        property :relative_path, predicate: RDF::DC.source
+        property :import_url, predicate: RDF::RDFS.seeAlso do |index|
+          index.as :symbol
         end
 
         property :part_of, predicate: RDF::DC.isPartOf
@@ -106,6 +108,16 @@ module Sufia
           date_modified_without_first.first
         end
         alias_method_chain :date_modified, :first
+
+        def relative_path_with_first
+          relative_path_without_first.first
+        end
+        alias_method_chain :relative_path, :first
+
+        def import_url_with_first
+          import_url_without_first.first
+        end
+        alias_method_chain :import_url, :first
 
         # A hack on a hack. Sufia is expecting some way to determine if an attribute can be
         # multiple or not. It was using using the datastream option, but that doesn't apply

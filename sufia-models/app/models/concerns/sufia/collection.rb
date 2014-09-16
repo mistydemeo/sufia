@@ -10,8 +10,6 @@ module Sufia
     included do
       before_save :update_permissions
       validates :title, presence: true
-
-      has_metadata "properties", type: PropertiesDatastream
     end
 
     def terms_for_display
