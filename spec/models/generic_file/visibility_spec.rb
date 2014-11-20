@@ -4,8 +4,12 @@ describe Sufia::GenericFile, :type => :model do
   module VisibilityOverride
     extend ActiveSupport::Concern
     include Sufia::GenericFile::Permissions
-    def visibility; super; end
-    def visibility=(value); super(value); end
+    def visibility
+      super
+    end
+    def visibility=(value)
+      super(value)
+    end
   end
   class MockParent < ActiveFedora::Base
     include VisibilityOverride

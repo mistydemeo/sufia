@@ -1,4 +1,4 @@
-module Sufia 
-  class SingleUseError < StandardError; end
+module Sufia
+  class SingleUseError < StandardError
+  end
 end
-

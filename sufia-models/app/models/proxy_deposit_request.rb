@@ -34,12 +34,9 @@ class ProxyDepositRequest < ActiveRecord::Base
 
   def send_request_transfer_message
     if self.updated_at == self.created_at
-      message = "#{link_to(sending_user.name, Sufia::Engine.routes.url_helpers.profile_path(sending_user.user_key))} wants to transfer a file to you. Review all <a href='#{Sufia::Engine.routes.url_helpers.transfers_path}'>transfer requests</a>"
-      User.batchuser.send_message(receiving_user, message, "Ownership Change Request")
-      else
-        message = "Your transfer request was #{status}."
-        message = message + " Comments: #{receiver_comment}" if !receiver_comment.blank?
-        User.batchuser.send_message(sending_user, message, "Ownership Change #{status}")
+      send_request_received_message
+    else
+      send_request_processed_message
     end
   end
 
@@ -81,5 +78,18 @@ class ProxyDepositRequest < ActiveRecord::Base
     query = ActiveFedora::SolrService.construct_query_for_pids([pid])
     solr_response = ActiveFedora::SolrService.query(query, raw: true)
     SolrDocument.new(solr_response['response']['docs'].first, solr_response).title
+  end
+
+  private
+
+  def send_request_received_message
+    message = "#{link_to(sending_user.name, Sufia::Engine.routes.url_helpers.profile_path(sending_user.user_key))} wants to transfer a file to you. Review all <a href='#{Sufia::Engine.routes.url_helpers.transfers_path}'>transfer requests</a>"
+    User.batchuser.send_message(receiving_user, message, "Ownership Change Request")
+  end
+
+  def send_request_processed_message
+    message = "Your transfer request was #{status}."
+    message = message + " Comments: #{receiver_comment}" if !receiver_comment.blank?
+    User.batchuser.send_message(sending_user, message, "Ownership Change #{status}")
   end
 end

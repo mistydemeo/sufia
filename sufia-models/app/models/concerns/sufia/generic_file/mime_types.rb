@@ -54,13 +54,10 @@ module Sufia
         end
 
         def office_document_mime_types
-          ['text/rtf',
-           'application/msword',
+          ['text/rtf', 'application/msword', 'application/vnd.ms-powerpoint',
            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-           'application/vnd.oasis.opendocument.text',
-           'application/vnd.ms-excel',
+           'application/vnd.oasis.opendocument.text', 'application/vnd.ms-excel',
            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-           'application/vnd.ms-powerpoint',
            'application/vnd.openxmlformats-officedocument.presentationml.presentation']
         end
       end

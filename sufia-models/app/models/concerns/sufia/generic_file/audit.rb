@@ -7,18 +7,16 @@ module Sufia
 
       def audit(force = false)
         logs = []
-        self.per_version do |ver|
+        per_version do |ver|
           logs << audit_each(ver, force)
         end
         logs
       end
 
       def per_version(&block)
-        self.datastreams.each do |dsid, ds|
+        datastreams.each do |dsid, ds|
           next if ds == full_text
-          ds.versions.each do |ver|
-            block.call(ver)
-          end
+          ds.versions.each { |ver| block.call(ver) }
         end
       end
 
@@ -35,10 +33,7 @@ module Sufia
       end
 
       def audit_stat(force = false)
-        logs = audit(force)
-        audit_results = logs.collect { |result| result["pass"] }
-
-        # check how many non runs we had
+        audit_results = audit(force).map { |result| result["pass"] }
         non_runs = audit_results.reduce(0) { |sum, value| value == NO_RUNS ? sum += 1 : sum }
         if non_runs == 0
           result = audit_results.reduce(true) { |sum, value| sum && value }
@@ -63,7 +58,6 @@ module Sufia
         latest_audit = ChecksumAuditLog.new(pass: NO_RUNS, pid: version.pid, dsid: version.dsid, version: version.versionID) unless latest_audit
         latest_audit
       end
-
 
       module ClassMethods
         def audit!(version)

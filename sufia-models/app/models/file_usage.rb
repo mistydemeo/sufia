@@ -1,26 +1,31 @@
 class FileUsage
-
   attr_accessor :id, :created, :path, :downloads, :pageviews
 
-  def initialize id
-    self.id = id
-    self.path = Sufia::Engine.routes.url_helpers.generic_file_path(Sufia::Noid.noidify(id))
+  def initialize(id)
+    @id = id
+    @path = Sufia::Engine.routes.url_helpers.generic_file_path(Sufia::Noid.noidify(id))
     earliest = Sufia.config.analytic_start_date
-    self.created = DateTime.parse(::GenericFile.find(id).create_date)
-    self.created = earliest > created ? earliest : created unless earliest.blank?
-    self.downloads = download_statistics
-    self.pageviews = pageview_statistics
+    @created = DateTime.parse(::GenericFile.find(id).create_date)
+    @created = earliest > created ? earliest : created unless earliest.blank?
+  end
+
+  def downloads
+    @downloads ||= download_statistics
+  end
+
+  def pageviews
+    @pageviews ||= pageview_statistics
   end
 
   def total_downloads
-    self.downloads.map(&:marshal_dump).reduce(0) { |total, result| total + result[:totalEvents].to_i }
+    downloads.map(&:marshal_dump).reduce(0) { |total, result| total + result[:totalEvents].to_i }
   end
 
   def total_pageviews
-    self.pageviews.map(&:marshal_dump).reduce(0) { |total, result| total + result[:pageviews].to_i }
+    pageviews.map(&:marshal_dump).reduce(0) { |total, result| total + result[:pageviews].to_i }
   end
-  
-  # Package data for visualization using JQuery Flot 
+
+  # Package data for visualization using JQuery Flot
   def to_flot
     [
       { label: "Pageviews",  data: pageviews_to_flot },

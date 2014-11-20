@@ -11,12 +11,17 @@ class ParanoidRightsDatastream < Hydra::Datastream::RightsMetadata
   def validate(object)
     valid = true
     VALIDATIONS.each do |validation|
-      if validation[:condition].call(object)
-        object.errors[validation[:key]] ||= []
-        object.errors[validation[:key]] << validation[:message]
-        valid = false
-      end
+      valid = call_validator(validation, object)
     end
     return valid
+  end
+
+  private
+
+  def call_validator(validation, object)
+    return true unless validation[:condition].call(object)
+    object.errors[validation[:key]] ||= []
+    object.errors[validation[:key]] << validation[:message]
+    false
   end
 end

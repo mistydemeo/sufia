@@ -5,9 +5,7 @@ class CreateDerivativesJob < ActiveFedoraPidBasedJob
 
   def run
     return unless generic_file.content.has_content?
-    if generic_file.video?
-      return unless Sufia.config.enable_ffmpeg
-    end
+    return if generic_file.video? && !Sufia.config.enable_ffmpeg
     generic_file.create_derivatives
     generic_file.save
   end

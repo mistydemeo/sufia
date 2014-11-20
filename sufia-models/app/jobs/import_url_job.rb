@@ -3,48 +3,51 @@ require 'uri'
 require 'tempfile'
 
 class ImportUrlJob < ActiveFedoraPidBasedJob
+  attr_reader :pid
 
   def queue_name
     :import_url
   end
 
   def run
-    user = User.find_by_user_key(generic_file.depositor)
-
-    Tempfile.open(self.pid) do |f|
-      path = copy_remote_file(generic_file.import_url, f)
-      # attach downloaded file to generic file stubbed out
-      if Sufia::GenericFile::Actor.new(generic_file, user).create_content(f, path, 'content')
-        # add message to user for downloaded file
-        message = "The file (#{generic_file.content.label}) was successfully imported."
-        job_user.send_message(user, message, 'File Import')
-      else
-        job_user.send_message(user, generic_file.errors.full_messages.join(', '), 'File Import Error')
-      end
+    Tempfile.open(pid) do |f|
+      path = copy_remote_file(f)
+      attach_file(f, path)
     end
   end
 
-  def copy_remote_file(import_url, f)
+  private
+
+  def copy_remote_file(f)
     f.binmode
-    # download file from url
-    uri = URI(generic_file.import_url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.scheme == "https"  # enable SSL/TLS
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-    http.start do
-      http.request_get(uri.request_uri) do |resp|
-        resp.read_body do |segment|
-          f.write(segment)
-        end
-      end
-    end
-
+    download_from_url(f)
     f.rewind
     uri.path
   end
 
+  # download file from url
+  def download_from_url(f, uri=URI(generic_file.import_url))
+    Net::HTTP.start(uri.host, uri.port, verify_mode: OpenSSL::SSL::VERIFY_NONE, use_ssl: uri.scheme == "https") do
+      http.request_get(uri.request_uri) do |resp|
+        resp.read_body { |segment| f.write(segment) }
+      end
+    end
+  end
+
+  # attach file to generic file
+  def attach_file(f, path)
+    if Sufia::GenericFile::Actor.new(generic_file, user).create_content(f, path, 'content')
+      job_user.send_message(user, "The file (#{generic_file.content.label}) was successfully imported.", 'File Import')
+    else
+      job_user.send_message(user, generic_file.errors.full_messages.join(', '), 'File Import Error')
+    end
+  end
+
+  def user
+    @user ||= User.find_by_user_key(generic_file.depositor)
+  end
+
   def job_user
-    User.batchuser
+    @job_user ||= User.batchuser
   end
 end

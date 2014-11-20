@@ -11,11 +11,9 @@ module Sufia
 
       def push(job)
         queue = job.respond_to?(:queue_name) ? job.queue_name : default_queue_name
-        begin
-          ::Resque.enqueue_to queue, MarshaledJob, Base64.encode64(Marshal.dump(job))
-        rescue Redis::CannotConnectError
-          ActiveFedora::Base.logger.error "Redis is down!"
-        end
+        ::Resque.enqueue_to queue, MarshaledJob, Base64.encode64(Marshal.dump(job))
+      rescue Redis::CannotConnectError
+        ActiveFedora::Base.logger.error "Redis is down!"
       end
     end
 

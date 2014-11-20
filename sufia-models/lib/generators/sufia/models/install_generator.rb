@@ -1,13 +1,9 @@
-# -*- encoding : utf-8 -*-
 require 'rails/generators'
 require 'rails/generators/migration'
-
 class Sufia::Models::InstallGenerator < Rails::Generators::Base
   include Rails::Generators::Migration
-
   source_root File.expand_path('../templates', __FILE__)
-
-  argument     :model_name, type: :string , default: "user"
+  argument :model_name, type: :string , default: "user"
   desc """
 This generator makes the following changes to your application:
  1. Creates several database migrations if they do not exist in /db/migrate
@@ -43,25 +39,8 @@ This generator makes the following changes to your application:
   def copy_migrations
     # Can't get this any more DRY, because we need this order.
     [
-      "acts_as_follower_migration.rb",
-      "add_social_to_users.rb",
-      "create_single_use_links.rb",
-      "add_ldap_attrs_to_user.rb",
-      "add_avatars_to_users.rb",
-      "create_checksum_audit_logs.rb",
-      "create_version_committers.rb",
-      "add_groups_to_users.rb",
-      "create_local_authorities.rb",
-      "create_trophies.rb",
-      'add_linkedin_to_users.rb',
-      'create_tinymce_assets.rb',
-      'create_content_blocks.rb',
-      'create_featured_works.rb',
-      'create_proxy_deposit_requests.rb',
-      'create_proxy_deposit_rights.rb'
-    ].each do |file|
-      better_migration_template file
-    end
+      "acts_as_follower_migration.rb", "add_social_to_users.rb", "create_single_use_links.rb", "add_ldap_attrs_to_user.rb", "add_avatars_to_users.rb", "create_checksum_audit_logs.rb", "create_version_committers.rb", "add_groups_to_users.rb", "create_local_authorities.rb", "create_trophies.rb", 'add_linkedin_to_users.rb', 'create_tinymce_assets.rb', 'create_content_blocks.rb', 'create_featured_works.rb', 'create_proxy_deposit_requests.rb', 'create_proxy_deposit_rights.rb'
+    ].each { |file| better_migration_template file }
   end
 
   # Add behaviors to the user model
@@ -113,10 +92,8 @@ This generator makes the following changes to your application:
   private
 
   def better_migration_template(file)
-    begin
-      migration_template "migrations/#{file}", "db/migrate/#{file}"
-    rescue Rails::Generators::Error => e
-      say_status("warning", e.message, :yellow)
-    end
+    migration_template "migrations/#{file}", "db/migrate/#{file}"
+  rescue Rails::Generators::Error => e
+    say_status("warning", e.message, :yellow)
   end
 end

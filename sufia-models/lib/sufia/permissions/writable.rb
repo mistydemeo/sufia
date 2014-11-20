@@ -20,13 +20,7 @@ module Sufia
 
       ## Updates those permissions that are provided to it. Does not replace any permissions unless they are provided
       def permissions=(params)
-        perm_hash = permission_hash
-        params[:new_user_name].each { |name, access| perm_hash['person'][name] = access } if params[:new_user_name].present?
-        params[:new_group_name].each { |name, access| perm_hash['group'][name] = access } if params[:new_group_name].present?
-
-        params[:user].each { |name, access| perm_hash['person'][name] = access} if params[:user]
-        params[:group].each { |name, access| perm_hash['group'][name] = access if ['read', 'edit'].include?(access)} if params[:group]
-
+        perm_hash = update_from_params(permission_hash, params)
         rightsMetadata.update_permissions(perm_hash)
       end
 
@@ -36,6 +30,14 @@ module Sufia
       end
 
       private
+
+      def update_from_params(perm_hash, params)
+        params[:new_user_name].each { |name, access| perm_hash['person'][name] = access } if params[:new_user_name].present?
+        params[:new_group_name].each { |name, access| perm_hash['group'][name] = access } if params[:new_group_name].present?
+        params[:user].each { |name, access| perm_hash['person'][name] = access} if params[:user]
+        params[:group].each { |name, access| perm_hash['group'][name] = access if ['read', 'edit'].include?(access)} if params[:group]
+        perm_hash
+      end
 
       def permission_hash
         old_perms = self.permissions
@@ -50,7 +52,6 @@ module Sufia
         end
         {'person'=>user_perms, 'group'=>group_perms}
       end
-
     end
   end
 end

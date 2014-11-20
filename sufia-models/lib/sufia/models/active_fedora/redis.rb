@@ -14,10 +14,7 @@ module ActiveFedora
 
     def events(size=-1)
       stream[:event].lrange(0, size).map do |event_id|
-        {
-          action: $redis.hget("events:#{event_id}", "action"),
-          timestamp: $redis.hget("events:#{event_id}", "timestamp")
-        }
+        { action: $redis.hget("events:#{event_id}", "action"), timestamp: $redis.hget("events:#{event_id}", "timestamp") }
       end
     rescue
       []
@@ -38,6 +35,3 @@ module ActiveFedora
     end
   end
 end
-
-
-
